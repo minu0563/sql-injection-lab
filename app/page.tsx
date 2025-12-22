@@ -5,12 +5,26 @@ import { useState } from "react";
 export default function Home() {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const summit = async () => {
-    await fetch('/api/users', {
+    setError(null);
+
+    const res = await fetch('/api/users', {
       method: 'POST',
       body: JSON.stringify({ name, age }),
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(
+        data.sqlMessage ||
+        data.error ||
+        'unknown error'
+      );
+      return;
+    }
 
     alert('ok');
   };
@@ -26,6 +40,14 @@ export default function Home() {
       <br /><br />
 
       <button onClick={summit}>send</button>
+
+      <br /><br />
+
+      {error && (
+        <pre style={{ color: 'red', whiteSpace: 'pre-wrap'}}>
+          {error}
+        </pre>
+      )}
     </div>
   );
 }
